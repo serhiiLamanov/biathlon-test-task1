@@ -1,0 +1,56 @@
+body{
+    text-align: center;
+}
+
+.buttons-panel{
+    margin: 1em auto;
+    padding: 1em;
+    width: 500px;
+    background-color: #eee;
+}
+    .buttons-panel button{
+        margin: .5em;
+        width: 8em;
+        padding: .5em;
+    }
+
+#raceRusults{
+    margin: 1em auto;
+    border-collapse: collapse;
+    text-align: left;
+}
+    #raceRusults thead{
+        background-color: #ddd;
+    }
+        #raceRusults thead th{
+            padding: 10px;
+        }
+        th.sorted{
+            background-color: #ccc;
+        }
+        th.sorted::after{
+            content:"▼";
+        }
+    #raceRusults tbody tr:nth-child(even){
+        background-color: #eee;
+    }
+        #raceRusults tbody td{
+            border: none;
+            padding: 5px 10px;
+        }
+
+.matched-row td{
+    animation: skyblue 1s ease-in-out 0.2s 2 alternate;
+}
+span.matched{
+    background-color:violet;
+}
+
+@keyframes skyblue {
+    from{
+        background-color: initial;
+    }
+    to{
+        background-color: deepskyblue;
+    }
+}

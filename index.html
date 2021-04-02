@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>biathlon results generator</title>
+</head>
+<body>
+    <div class="buttons-panel">
+        <h2>generate race</h2>
+        <button id="individualMen">individual</button><button id="sprintMen">sprint</button><button disabled id="pursuitMen">pursuit</button>
+    </div>
+    <input type="search" id="search" name="search" placeholder="search by name" list="athletesList">
+    <datalist id="athletesList"></datalist>
+    <table id="raceRusults">
+        <caption></caption>
+        <thead>
+            <tr><th id="rankTH">Rank</th><th id="nameTH">Name</th><th>Nationality</th><th id="ShootingTH">Shooting</th><th id="ShootingTimeTH">Shooting time</th><th id="resultTH">Result</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const raceStats = {
+            men:{
+                individual:{distance:20, shoots:20, penaltyLoop:0, penaltyTime:60, avrBestSpeed:100},
+                sprint:{distance:10, shoots:10, penaltyLoop:0.15, penaltyTime:0, avrBestSpeed:120},
+                pursuit:{distance:12.5, shoots:20, penaltyLoop:0.15, penaltyTime:0, avrBestSpeed:110},
+            },
+            women:{
+                individual:{distance:15, shoots:20, penaltyLoop:0, penaltyTime:60, avrBestSpeed:80},
+                sprint:{distance:7.5, shoots:10, penaltyLoop:0.15, penaltyTime:0, avrBestSpeed:100},
+                pursuit:{distance:10, shoots:20, penaltyLoop:0.15, penaltyTime:0, avrBestSpeed:90},
+            }
+        };
+        const stats = [ {name:"BOE Johannes Thingnes",      nationality:"NOR", timeGap:0.1,  shooting: 83.8, shootingTime:56.8},
+                        {name:"DALE Johannes",              nationality:"NOR", timeGap:0.3,  shooting: 82.5, shootingTime:57.9},
+                        {name:"BOE Tarjei",                 nationality:"NOR", timeGap:1,    shooting: 85.5, shootingTime:54.9},
+                        {name:"FILLON MAILLET Quentin",     nationality:"FRA", timeGap:1.5,  shooting: 86.3, shootingTime:53.2},
+                        {name:"PONSILUOMA Martin",          nationality:"SWE", timeGap:1.5,  shooting: 79.6, shootingTime:59},
+                        {name:"HOFER Lukas",                nationality:"ITA", timeGap:1.9,  shooting: 84.3, shootingTime:60},
+                        {name:"LAEGREID Sturla Holm",       nationality:"NOR", timeGap:2,    shooting: 92,   shootingTime:54},
+                        {name:"SAMUELSSON Sebastian",       nationality:"SWE", timeGap:2.1,  shooting: 87.5, shootingTime:57.9},
+                        {name:"JACQUELIN Emilien",          nationality:"FRA", timeGap:2.4,  shooting: 85.2, shootingTime:53.1},
+                        {name:"DOLL Benedikt",              nationality:"GER", timeGap:2.5,  shooting: 82.2, shootingTime:55},
+                        {name:"CHRISTIANSEN Vetle Sjastad", nationality:"NOR", timeGap:3,    shooting: 86,   shootingTime:53.1},
+                        {name:"PEIFFER Arnd",               nationality:"GER", timeGap:3.1,  shooting: 87.7, shootingTime:55},
+                        {name:"DESTHIEUX Simon",            nationality:"FRA", timeGap:3.1,  shooting: 84.7, shootingTime:50.1},
+                        {name:"NELIN Jesper",               nationality:"SWE", timeGap:3.2,  shooting: 75.3, shootingTime:59},
+                        {name:"LATYPOV Eduard",             nationality:"RUS", timeGap:3.3,  shooting: 82.1, shootingTime:52.9},
+                        {name:"CLAUDE Fabien",              nationality:"FRA", timeGap:3.7,  shooting: 78.6, shootingTime:52.5},
+                        {name:"BJOENTEGAARD Erlend",        nationality:"NOR", timeGap:3.9,  shooting: 87.9, shootingTime:58},
+                        {name:"RASTORGUJEVS Andrejs",       nationality:"LAT", timeGap:3.9,  shooting: 79.2, shootingTime:56},
+                        {name:"LOGINOV Alexandr",           nationality:"RUS", timeGap:4.1,  shooting: 83.8, shootingTime:48.9},
+                        {name:"GUIGONNAT Antonin",          nationality:"FRA", timeGap:4.3,  shooting: 81.1, shootingTime:59},
+                        {name:"KÜHN Johannes",              nationality:"GER", timeGap:4.3,  shooting: 75,   shootingTime:66},
+                        {name:"EBERHARD Julian",            nationality:"AUT", timeGap:4.3,  shooting: 76.8, shootingTime:55},
+                        {name:"LESSER Erik",                nationality:"GER", timeGap:4.5,  shooting: 84.9, shootingTime:51.8},
+                        {name:"SMOLSKI Anton",              nationality:"BLR", timeGap:4.6,  shooting: 79.7, shootingTime:55.9},
+                        {name:"FAK Jakov",                  nationality:"SLO", timeGap:4.6,  shooting: 89.5, shootingTime:53.5},
+                        {name:"ANDERSEN Aleksander Fjeld",  nationality:"NOR", timeGap:4.7,  shooting: 85,   shootingTime:54.9},
+                        {name:"NAWRATH Philipp",            nationality:"GER", timeGap:4.8,  shooting: 83.1, shootingTime:55.3},
+                        {name:"FINELLO Jeremy",             nationality:"SUI", timeGap:4.8,  shooting: 72,   shootingTime:56},
+                        {name:"WEGER Benjamin",             nationality:"SUI", timeGap:5.1,  shooting: 86.8, shootingTime:57.7},
+                        {name:"KRCMAR Michal",              nationality:"CZE", timeGap:5.1,  shooting: 87.1, shootingTime:54.7},
+                        {name:"BROWN Jake",                 nationality:"USA", timeGap:5.3,  shooting: 76,   shootingTime:55},
+                        {name:"WINDISCH Dominik",           nationality:"ITA", timeGap:5.4,  shooting: 75.8, shootingTime:55},
+                        {name:"SEPPALA Tero",               nationality:"FIN", timeGap:5.5,  shooting: 79.1, shootingTime:55},
+                        {name:"ELISEEV Matvey",             nationality:"RUS", timeGap:5.6,  shooting: 88.2, shootingTime:55},
+                        {name:"PIDRUCHNUY Dmytro",          nationality:"UKR", timeGap:5.6,  shooting: 82.7, shootingTime:55},
+                        {name:"BOCHARNIKOV Sergey",         nationality:"BLR", timeGap:5.7,  shooting: 82.6, shootingTime:55},
+                        {name:"STVRTECKY Jakub",            nationality:"CZE", timeGap:5.9,  shooting: 69.6, shootingTime:55},
+                        {name:"HORN Philipp",               nationality:"GER", timeGap:5.9,  shooting: 74.8, shootingTime:55},
+                        {name:"ILIEV Vladimir",             nationality:"BUL", timeGap:5.9,  shooting: 76.1, shootingTime:55},
+                        {name:"LEITNER Felix",              nationality:"AUT", timeGap:6,    shooting: 83.1, shootingTime:55},
+                        {name:"YALIOTNAU Raman",            nationality:"BLR", timeGap:6,    shooting: 68,   shootingTime:55},
+                        {name:"VARABEI Maksim",             nationality:"BLR", timeGap:6.4,  shooting: 77.8, shootingTime:55},
+                        {name:"REES Roman",                 nationality:"GER", timeGap:6.9,  shooting: 86.8, shootingTime:55},
+                        {name:"JAEGER Martin",              nationality:"SUI", timeGap:7,    shooting: 76.3, shootingTime:55},
+                        {name:"GIACOMEL Tommaso",           nationality:"ITA", timeGap:7.1,  shooting: 75.4, shootingTime:55},
+                        {name:"BORMOLINI Thomas",           nationality:"ITA", timeGap:7.1,  shooting: 84.7, shootingTime:55},
+                        {name:"STROLIA Vytautas",           nationality:"LTU", timeGap:7.2,  shooting: 76.9, shootingTime:55},
+                        {name:"PRYMA Artem",                nationality:"UKR", timeGap:7.3,  shooting: 83.6, shootingTime:55},
+                        {name:"EDER Simon",                 nationality:"AUT", timeGap:7.3,  shooting: 92.5, shootingTime:55},
+                        {name:"GARANICHEV Evgeniy",         nationality:"RUS", timeGap:7.4,  shooting: 86.9, shootingTime:55},
+                        {name:"MORAVEC Ondrej",             nationality:"CZE", timeGap:7.4,  shooting: 84.9, shootingTime:55},
+                        {name:"STROEMSHEIM Endre",          nationality:"NOR", timeGap:7.5,  shooting: 85.6, shootingTime:55},
+                        {name:"CLAUDE Florent",             nationality:"BEL", timeGap:7.5,  shooting: 86.5, shootingTime:55},
+                        {name:"WIESTNER Serafin",           nationality:"SUI", timeGap:7.7,  shooting: 77.3, shootingTime:55},
+                        {name:"VACLAVIK Adam",              nationality:"CZE", timeGap:8,    shooting: 72.6, shootingTime:55},
+                        {name:"HIIDENSALO Olli",            nationality:"FIN", timeGap:8,    shooting: 73.2, shootingTime:55},
+                        {name:"DOHERTY Sean",               nationality:"USA", timeGap:8.2,  shooting: 82.6, shootingTime:55},
+                        {name:"KHALILI Said Karimulla",     nationality:"RUS", timeGap:8.3,  shooting: 86.1, shootingTime:55},
+                        {name:"KOMATZ David",               nationality:"AUT", timeGap:8.3,  shooting: 88.3, shootingTime:55},
+                        {name:"LAZOUSKI Dzmitry",           nationality:"BLR", timeGap:8.5,  shooting: 78.3, shootingTime:55},
+                        {name:"BIONAZ Didier",              nationality:"ITA", timeGap:8.6,  shooting: 79.0, shootingTime:55},
+                        {name:"BAUER Klemen",               nationality:"SLO", timeGap:8.6,  shooting: 71.1, shootingTime:55},
+                        {name:"FEMLING Peppe",              nationality:"SWE", timeGap:8.7,  shooting: 80.5, shootingTime:55},
+                        {name:"GOW Christian",              nationality:"CAN", timeGap:8.8,  shooting: 86.7, shootingTime:55},
+                        {name:"LEMMERER Harald",            nationality:"AUT", timeGap:8.9,  shooting: 77.7, shootingTime:55},
+                        {name:"STRELTSOV Kirill",           nationality:"RUS", timeGap:8.9,  shooting: 81.6, shootingTime:55},
+                        {name:"KOBONOKI Tsukasa",           nationality:"JPN", timeGap:8.9,  shooting: 79.5, shootingTime:55},
+                        {name:"LANGER Thierry",             nationality:"BEL", timeGap:9,    shooting: 79.9, shootingTime:55},
+                        {name:"PUCHIANU Cornel",            nationality:"ROU", timeGap:9.1,  shooting: 67.9, shootingTime:55},
+                        {name:"CRNKOVIC Kresimir",          nationality:"CRO", timeGap:9.2,  shooting: 67.3, shootingTime:55},
+                        {name:"SINAPOV Anton",              nationality:"BUL", timeGap:9.3,  shooting: 74.3, shootingTime:55},
+                        {name:"USOV Mihail",                nationality:"MDA", timeGap:9.4,  shooting: 76.3, shootingTime:55},
+                        {name:"CLAUDE Emilien",             nationality:"FRA", timeGap:9.5,  shooting: 83.0, shootingTime:55},
+                        {name:"KRUPCIK Tomaas",             nationality:"CZE", timeGap:9.6,  shooting: 77.1, shootingTime:55},
+                        {name:"DUDCHENKO Anton",            nationality:"UKR", timeGap:9.7,  shooting: 82.4, shootingTime:55},
+                        {name:"GUZIK Grzegorz",             nationality:"POL", timeGap:9.7,  shooting: 70.9, shootingTime:55},
+                        {name:"NORDGREN Leif",              nationality:"USA", timeGap:9.7,  shooting: 83.0, shootingTime:55},
+                        {name:"DOMBROVSKIJ Karol",          nationality:"LTU", timeGap:9.8,  shooting: 83.9, shootingTime:55},
+                        {name:"KARLIK Mikulas",             nationality:"CZE", timeGap:10,   shooting: 73.8, shootingTime:55},
+                        {name:"GOW Scott",                  nationality:"CAN", timeGap:10,   shooting: 82.6, shootingTime:55},
+                        {name:"MAGAZEEV Pavel",             nationality:"MDA", timeGap:10,   shooting: 72.9, shootingTime:55},
+                        {name:"RAENKEL Raido",              nationality:"EST", timeGap:10.1, shooting: 64.7, shootingTime:55},
+                        {name:"GERDJIKOV Dimitar",          nationality:"BUL", timeGap:10.2, shooting: 76.9, shootingTime:55},
+                        {name:"TSYMBAL Bogdan",             nationality:"UKR", timeGap:10.5, shooting: 82.4, shootingTime:55},
+                        {name:"RUNNALLS Adam ",             nationality:"CAN", timeGap:10.6, shooting: 77.7, shootingTime:55},
+                        {name:"DOVZAN Miha",                nationality:"SLO", timeGap:10.7, shooting: 87.5, shootingTime:55},
+                        {name:"ERMITS Kalev",               nationality:"EST", timeGap:10.7, shooting: 70.7, shootingTime:55},
+                        {name:"HARJULA Tuomas",             nationality:"FIN", timeGap:10.9, shooting: 84.8, shootingTime:55},
+                        {name:"RANTA Jaakko Olavi",         nationality:"FIN", timeGap:11,   shooting: 79.0, shootingTime:55},
+                        {name:"ZEMLICKA Milan",             nationality:"CZE", timeGap:11,   shooting: 86.0, shootingTime:55},
+                        {name:"OZAKI Kosuke",               nationality:"JPN", timeGap:11.2, shooting: 80.2, shootingTime:55},
+                        {name:"MUKHIN Alexandr",            nationality:"KAZ", timeGap:11.2, shooting: 78.4, shootingTime:55},
+                        {name:"HARTWEG Niklas",             nationality:"SUI", timeGap:11.3, shooting: 81.2, shootingTime:55},
+                        {name:"SCHOMMER Paul",              nationality:"USA", timeGap:11.3, shooting: 76.1, shootingTime:55},
+                        {name:"BARTKO Simon",               nationality:"SVK", timeGap:11.3, shooting: 64.4, shootingTime:55},
+                        {name:"BABIKOV Anton",              nationality:"RUS", timeGap:11.3, shooting: 85.4, shootingTime:55},
+                        {name:"SIMA Michal",                nationality:"SVK", timeGap:11.4, shooting: 83.9, shootingTime:55},
+                        {name:"LABASTAU Mikita",            nationality:"BLR", timeGap:11.6, shooting: 90.6, shootingTime:55},
+                        {name:"HASILLA Tomas",              nationality:"SVK", timeGap:11.6, shooting: 74.1, shootingTime:55},
+                        {name:"SLOTINS Roberts",            nationality:"LAT", timeGap:11.7, shooting: 62.7, shootingTime:55},
+                        {name:"BUTA George",                nationality:"ROU", timeGap:12,   shooting: 85.5, shootingTime:55},
+                        {name:"KAUKENAS Tomas",             nationality:"LTU", timeGap:12,   shooting: 76.3, shootingTime:55},
+                        {name:"STALDER Sebastian",          nationality:"SUI", timeGap:12.2, shooting: 82.9, shootingTime:55},
+                        {name:"PATRIJUKS Aleksandrs",       nationality:"LAT", timeGap:12.5, shooting: 70,   shootingTime:55},
+                        {name:"TKALENKO Ruslan",            nationality:"UKR", timeGap:12.7, shooting: 76.4, shootingTime:55},
+                        {name:"TRSAN Rok",                  nationality:"SLO", timeGap:12.9, shooting: 86.0, shootingTime:55},
+                        {name:"KIERS Trevor",               nationality:"CAN", timeGap:13.3, shooting: 75.2, shootingTime:55},
+                        {name:"TACHIZAKI Mikito",           nationality:"JPN", timeGap:13.3, shooting: 81.8, shootingTime:55},
+        ];
+
+        let currRace;
+        const table = document.querySelector("#raceRusults");
+        const tbody = table.querySelector("tbody");
+
+        document.querySelector("#individualMen").addEventListener("click", event => generate("individual", "men"));
+        document.querySelector("#sprintMen").addEventListener("click", event => generate("sprint", "men"));
+        document.querySelector("#pursuitMen").addEventListener("click", event => generate("pursuit", "men"));
+
+        document.querySelector("#search").addEventListener("change", ({target:{value}}) => showSearched(value));
+
+        table.querySelector("#rankTH").addEventListener("click", ({target}) => sortTableByRaceData(target, "rank"));
+        table.querySelector("#nameTH").addEventListener("click", ({target}) => sortTableByRow(target, 1));
+        table.querySelector("#ShootingTH").addEventListener("click", ({target}) => sortTableByRaceData(target, "shooting"));
+        table.querySelector("#ShootingTimeTH").addEventListener("click", ({target}) => sortTableByRaceData(target, "shootingTime"));
+        table.querySelector("#resultTH").addEventListener("click", ({target}) => sortTableByRaceData(target, "rank"));
+
+
+        function generate (raceType, group) {
+            const {distance, shoots, penaltyLoop, penaltyTime, avrBestSpeed} = raceStats[group][raceType];
+            const race = stats.map(athlete => {
+                const shooting = shoot(athlete.shooting, shoots);
+                const shootingTime = (athlete.shootingTime * shoots * randomG() / 10).toFixed(1);
+                const o = {name:athlete.name, nationality:athlete.nationality, shooting, shootingTime};
+                o.time = Math.round(((avrBestSpeed + athlete.timeGap) * randomG() * (distance + penaltyLoop * shooting) + penaltyTime * shooting + Number.parseFloat(shootingTime))*10)/10;
+                return o;
+            })
+            race.sort((a,b) => a.time - b.time);
+            race[0].rank = 1;
+            race[0].result = secondsToHMS(race[0].time);
+            for (let i = 1; i <race.length; i++){
+                race[i].rank = race[i].time === race[i-1].time ? race[i-1].rank : i+1;
+                race[i].result = "+" + secondsToHMS(race[i].time - race[0].time);
+            }
+            currRace = race;
+            
+            document.querySelector("#athletesList").innerHTML = race.reduce((acc, curr) => acc + `<option>${curr.name}</option>`);
+            tbody.innerHTML = race.reduce((acc, curr, i) => 
+            acc + `<tr data-position=${i}><td>${curr.rank}</td><td>${curr.name}</td><td>${curr.nationality}</td><td>${curr.shooting}</td><td>${secondsToHMS(curr.shootingTime)}</td><td>${curr.result}</td></tr>`,"");     
+            table.firstElementChild.innerHTML = `${group} ${raceType} generated ${(new Date()).toLocaleString()}`;
+
+            selectTH(table.querySelector("#rankTH"));
+        }
+
+        function randomG(){ 
+            let r = 0;
+            for(var i = 6; i > 0; i--){
+                r += Math.random();
+            }
+            return r / 30 + 0.9;
+        }
+
+        function shoot(accuracy, quantity){
+            accuracy/=100;
+            let result = 0;
+            for(let i = 0; i < quantity; i++){
+                if(Math.random() > accuracy){
+                    result++;
+                }
+            }
+            return result;
+        }
+
+        function secondsToHMS(sec){
+            const hours = Math.floor(sec / 3600);
+            const minutes = Math.floor((sec-hours * 3600) / 60);
+            const seconds = sec - (hours * 3600) - (minutes * 60);
+
+            let result = "";
+            if (hours){
+                result += hours + ":";
+            }
+            if(minutes){
+                if(result && minutes < 10){
+                    result += "0";
+                }
+                result += minutes + ":";
+            }
+            if (result && seconds < 10){
+                result += "0";
+            }
+            result += seconds.toFixed(1);
+            return result;
+        }
+
+        function selectTH(th){
+            th.parentElement.querySelector(".sorted")?.classList.remove("sorted");
+            th.classList.add("sorted");
+        }
+        function sortTableByRow(th, ind){
+            if(th.classList.contains("sorted")) return;
+            selectTH(th);
+            Array.from(tbody.rows).sort((tr1, tr2) => tr1.children[ind].innerText > tr2.children[ind].innerText).forEach(tr => tbody.appendChild(tr))
+        }
+        function sortTableByRaceData(th, prop){
+            if(th.classList.contains("sorted")) return;
+            selectTH(th);
+            Array.from(tbody.rows).sort((tr1, tr2) => currRace[tr1.dataset.position][prop] - currRace[tr2.dataset.position][prop]).forEach(tr => tbody.appendChild(tr))
+        }
+
+        function showSearched(name){
+            const rows = Array.from(tbody.rows);
+            const row = rows.find(row => row.cells[1].innerText.startsWith(name)) || rows.find(row => row.cells[1].innerText.toLowerCase().includes(name.toLowerCase()));
+            row.scrollIntoView(false);
+            row.classList.add("matched-row");
+            row.cells[1].innerHTML = row.cells[1].innerText.replace(new RegExp(name, "i"), match => `<span class="matched">${match}</span>`);
+            setTimeout(() => {
+                row.classList.remove("matched-row");
+                const span = row.querySelector("span.matched");
+                span.replaceWith(span.innerText);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
